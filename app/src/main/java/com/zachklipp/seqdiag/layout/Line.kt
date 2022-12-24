@@ -17,6 +17,8 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import com.zachklipp.seqdiag.ArrowHead
+import com.zachklipp.seqdiag.HorizontalArrow
 import com.zachklipp.seqdiag.LineBuilder
 import com.zachklipp.seqdiag.Participant
 import com.zachklipp.seqdiag.ParticipantState
@@ -48,7 +50,7 @@ internal class Line(
         apply { this.label = content }
 
     @Composable
-    override fun Content() {
+    override fun Content(style: SequenceDiagramStyle) {
         Column(verticalArrangement = spacedBy(style.labelPadding)) {
             label?.let {
                 Box(

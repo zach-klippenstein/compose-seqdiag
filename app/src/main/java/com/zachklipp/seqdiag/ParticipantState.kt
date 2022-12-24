@@ -9,6 +9,7 @@ import androidx.compose.ui.layout.Placeable
 import com.zachklipp.seqdiag.Participant
 
 internal class ParticipantState(
+    var index: Int,
     val topLabel: @Composable () -> Unit,
     val bottomLabel: @Composable (() -> Unit)?
 ) : Participant {

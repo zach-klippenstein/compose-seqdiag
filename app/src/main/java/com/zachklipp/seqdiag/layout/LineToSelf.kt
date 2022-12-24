@@ -21,11 +21,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import com.zachklipp.seqdiag.ArrowHead
+import com.zachklipp.seqdiag.ArrowToSelf
 import com.zachklipp.seqdiag.LineBuilder
 import com.zachklipp.seqdiag.OverrideTextStyle
 import com.zachklipp.seqdiag.ParticipantState
 import com.zachklipp.seqdiag.SequenceDiagramStyle
 import com.zachklipp.seqdiag.getLineStroke
+import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.End
 
 internal class LineToSelf(
     override val participant: ParticipantState,
@@ -44,13 +47,18 @@ internal class LineToSelf(
     override val width: Int
         get() = placeable?.width ?: 0
 
+    override val participantAlignment: ParticipantAlignment
+        get() = End
+    override val maxIntrinsicWidth: Int
+        get() = measurable?.maxIntrinsicWidth(Int.MAX_VALUE) ?: 0
+
     override fun brush(brush: Brush): LineBuilder = apply { this.brush = brush }
     override fun stroke(stroke: Stroke): LineBuilder = apply { this.stroke = stroke }
     override fun label(content: @Composable () -> Unit): LineBuilder =
         apply { this.label = content }
 
     @Composable
-    override fun Content() {
+    override fun Content(style: SequenceDiagramStyle) {
         Row(
             modifier = Modifier.height(IntrinsicSize.Max),
             horizontalArrangement = spacedBy(style.labelPadding)
@@ -58,7 +66,6 @@ internal class LineToSelf(
             ArrowToSelf(
                 brush = brush ?: style.lineBrush,
                 stroke = stroke ?: style.getLineStroke(LocalDensity.current),
-                // TODO
                 head = ArrowHead.Outline,
                 modifier = Modifier
                     .fillMaxHeight()
@@ -66,7 +73,12 @@ internal class LineToSelf(
             )
             label?.let {
                 OverrideTextStyle({ it.copy(textAlign = TextAlign.Start) }) {
-                    Box(propagateMinConstraints = true, modifier = Modifier.squarish()) {
+                    Box(
+                        propagateMinConstraints = true,
+                        modifier = if (style.balanceLabelDimensions) {
+                            Modifier.balancedAspectRatio()
+                        } else Modifier
+                    ) {
                         it()
                     }
                 }
@@ -78,8 +90,8 @@ internal class LineToSelf(
         measurable = nextMeasurable()
     }
 
-    override fun measure() {
-        placeable = measurable!!.measure(Constraints())
+    override fun measure(maxWidth: Int) {
+        placeable = measurable!!.measure(Constraints(maxWidth = maxWidth))
     }
 
     override fun Placeable.PlacementScope.place(density: Density) {

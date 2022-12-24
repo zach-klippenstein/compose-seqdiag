@@ -1,4 +1,4 @@
-package com.zachklipp.seqdiag.layout
+package com.zachklipp.seqdiag
 
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box

@@ -24,9 +24,9 @@ import com.zachklipp.seqdiag.Participant
 import com.zachklipp.seqdiag.ParticipantState
 import com.zachklipp.seqdiag.SequenceDiagramScope
 import com.zachklipp.seqdiag.SequenceDiagramStyle
-import com.zachklipp.seqdiag.layout.SingleParticipantNote.NoteAnchor.End
-import com.zachklipp.seqdiag.layout.SingleParticipantNote.NoteAnchor.Over
-import com.zachklipp.seqdiag.layout.SingleParticipantNote.NoteAnchor.Start
+import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.End
+import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.Over
+import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.Start
 
 internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
 
@@ -60,7 +60,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         }
 
         rowItems.forEach {
-            it.Content()
+            it.Content(diagramStyle)
         }
     }
 
@@ -71,13 +71,17 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         if (participants.isEmpty()) return layout(0, 0) {}
 
         val horizontalSpacing = diagramStyle.participantSpacing.roundToPx()
+        val labelPadding = diagramStyle.labelPadding.roundToPx()
         val verticalSpacing = diagramStyle.verticalSpacing.roundToPx()
 
         // Max constraints will always be unbounded since using scaleToFit modifier.
         collectMeasurables(measurables)
         measureParticipantLabels()
-        measureIndependentRows()
-        val totalWidth = calculateHorizontalOffsets(horizontalSpacing)
+        val totalWidth = measureColumns(
+            participantSpacing = horizontalSpacing,
+            itemPadding = labelPadding * 2,
+            layoutDirection = layoutDirection
+        )
         measureSpanningRows()
         val totalHeight = calculateVerticalOffsets(verticalSpacing)
 
@@ -85,8 +89,18 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         return layout(totalWidth, totalHeight) {
             // Place participant labels
             participants.forEach {
-                it.topLabelPlaceable!!.placeRelative(x = it.left, y = it.topLabelTop)
-                it.bottomLabelPlaceable!!.placeRelative(x = it.left, y = it.bottomLabelTop)
+                val topLabelLeft = it.left + Alignment.CenterHorizontally.align(
+                    size = it.topLabelPlaceable?.width ?: 0,
+                    space = it.labelWidth,
+                    layoutDirection
+                )
+                val bottomLabelLeft = it.left + Alignment.CenterHorizontally.align(
+                    size = it.bottomLabelPlaceable?.width ?: 0,
+                    space = it.labelWidth,
+                    layoutDirection
+                )
+                it.topLabelPlaceable!!.placeRelative(x = topLabelLeft, y = it.topLabelTop)
+                it.bottomLabelPlaceable!!.placeRelative(x = bottomLabelLeft, y = it.bottomLabelTop)
             }
 
             // Place rows
@@ -109,6 +123,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         topLabel: @Composable () -> Unit,
         bottomLabel: (@Composable () -> Unit)?
     ): Participant = ParticipantState(
+        index = participants.size,
         topLabel = topLabel,
         bottomLabel = bottomLabel
     ).also {
@@ -135,7 +150,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         rowItems += if (participants.size == 1) {
             SingleParticipantNote(
                 participants[0] as ParticipantState,
-                anchor = Over,
+                participantAlignment = Over,
                 label = label,
                 style = diagramStyle,
             )
@@ -147,7 +162,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
     override fun noteToStartOf(participant: Participant, label: @Composable () -> Unit) {
         rowItems += SingleParticipantNote(
             participant as ParticipantState,
-            anchor = Start,
+            participantAlignment = Start,
             label = label,
             style = diagramStyle
         )
@@ -156,7 +171,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
     override fun noteToEndOf(participant: Participant, label: @Composable () -> Unit) {
         rowItems += SingleParticipantNote(
             participant as ParticipantState,
-            anchor = End,
+            participantAlignment = End,
             label = label,
             style = diagramStyle
         )
@@ -210,23 +225,15 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         bottomLabelsHeight = bottomHeight
     }
 
-    private fun measureIndependentRows() {
-        rowItems.forEach {
-            if (it is SingleParticipantRowItem) {
-                it.measure()
-            }
-        }
-    }
-
     private fun Density.measureSpanningRows() {
         rowItems.forEach { item ->
             if (item is SpanningRowItem) {
                 val startParticipant = participants.first { it in item.participants }
                 val endParticipant = participants.last { it in item.participants }
-                val minStart = startParticipant.left - startParticipant.columnWidth / 2
+                val minStart = startParticipant.left - startParticipant.labelWidth / 2
                 val maxStart = startParticipant.centerXOffset
                 val minEnd = endParticipant.centerXOffset
-                val maxEnd = endParticipant.left + endParticipant.columnWidth / 2
+                val maxEnd = endParticipant.left + endParticipant.labelWidth / 2
                 with(item) {
                     measure(
                         minWidth = minEnd - maxStart,
@@ -238,109 +245,119 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         }
     }
 
-    /**
-     * @return total width
-     */
-    private fun calculateHorizontalOffsets(spacing: Int): Int {
-        val participantItems = mutableMapOf<Participant, MutableList<SingleParticipantRowItem>>()
-        rowItems.forEach {
-            if (it is SingleParticipantRowItem) {
-                val items = participantItems.getOrPut(it.participant) { ArrayList() }
-                items += it
-            }
-        }
+    private fun measureColumns(
+        participantSpacing: Int,
+        itemPadding: Int,
+        layoutDirection: LayoutDirection
+    ): Int {
+        val numColumns = participants.size * 2 + 1
+        val columnItems = Array(numColumns) { mutableVectorOf<SingleParticipantRowItem>() }
+        val columnIntrinsicWidths = IntArray(numColumns)
+        val columnWidths = IntArray(numColumns)
 
-        val startItems = mutableVectorOf<SingleParticipantRowItem>()
-        val overItems = mutableVectorOf<SingleParticipantRowItem>()
-        val lineItems = mutableVectorOf<SingleParticipantRowItem>()
-        val endItems = mutableVectorOf<SingleParticipantRowItem>()
-        var startWidth: Int
-        var overWidth: Int
-        var lineWidth: Int
-        var endWidth: Int
-        var runningLeft = 0
-        participants.forEachIndexed { index, participant ->
-            startItems.clear()
-            overItems.clear()
-            lineItems.clear()
-            endItems.clear()
-            startWidth = 0
-            overWidth = 0
-            lineWidth = 0
-            endWidth = 0
-            val items = participantItems[participant] ?: mutableListOf()
-            items.forEach { item ->
-                when (item) {
-                    is SingleParticipantNote -> when (item.anchor) {
-                        Start -> {
-                            startItems += item
-                            startWidth = maxOf(item.width, startWidth)
-                        }
-
-                        Over -> {
-                            overItems += item
-                            overWidth = maxOf(item.width, overWidth)
-                        }
-
-                        End -> {
-                            endItems += item
-                            endWidth = maxOf(item.width, endWidth)
-                        }
-                    }
-
-                    is LineToSelf -> {
-                        lineItems += item
-                        lineWidth = maxOf(item.width, lineWidth)
-                    }
-
-                    else -> {
-                        // Noop
-                    }
+        // Sort row items into columns and calculate each column's max intrinsic width.
+        rowItems.forEach { item ->
+            if (item is SingleParticipantRowItem) {
+                val participant = item.participant as ParticipantState
+                val participantColumnIndex = participant.index * 2 + 1
+                val columnIndex = when (item.participantAlignment) {
+                    Start -> participantColumnIndex - 1
+                    Over -> participantColumnIndex
+                    End -> participantColumnIndex + 1
                 }
-            }
-
-            val halfLabelWidth = participant.labelWidth / 2
-            participant.columnWidth = maxOf(
-                participant.labelWidth,
-                overWidth,
-                maxOf(startWidth, halfLabelWidth) + maxOf(lineWidth, endWidth, halfLabelWidth)
-            )
-            participant.centerXOffset = runningLeft + maxOf(
-                halfLabelWidth,
-                overWidth / 2,
-                startWidth
-            )
-            val rowStart = runningLeft + (halfLabelWidth - startWidth).coerceAtLeast(0)
-
-            startItems.forEach { item ->
-                item.left = rowStart + Alignment.End.align(
-                    size = item.width,
-                    space = startWidth,
-                    LayoutDirection.Ltr
+                columnItems[columnIndex] += item
+                // The padding used to separate the item from the participant it's NOT anchored to.
+                val nonParticipantPadding = when (columnIndex) {
+                    0, numColumns - 1 -> 0
+                    else -> itemPadding
+                }
+                columnIntrinsicWidths[columnIndex] = maxOf(
+                    columnIntrinsicWidths[columnIndex],
+                    item.maxIntrinsicWidth + nonParticipantPadding
                 )
             }
-            overItems.forEach { item ->
-                item.left =
-                    participant.centerXOffset - overWidth / 2 + Alignment.CenterHorizontally.align(
-                        size = item.width,
-                        space = overWidth,
-                        LayoutDirection.Ltr
-                    )
+        }
+
+        // Calculate each column's max width constraint and place participants.
+        var participantOffset = 0
+        columnIntrinsicWidths.forEachIndexed { columnIndex, intrinsicWidth ->
+            val beforeExtent = if (columnIndex == 0) 0 else {
+                columnIntrinsicWidths[columnIndex - 1] / 2
             }
-            lineItems.forEach { item ->
-                item.left = participant.centerXOffset
+            val afterExtent = if (columnIndex == numColumns - 1) 0 else {
+                columnIntrinsicWidths[columnIndex + 1] / 2
             }
-            endItems.forEach { item ->
-                item.left = participant.centerXOffset
+            val participantLabelExtent = if (columnIndex % 2 == 0) {
+                // In between participants.
+                val beforeParticipant = participants.getOrNull((columnIndex) / 2 - 1)
+                val afterParticipant = participants.getOrNull(columnIndex / 2)
+                val spacing = if (beforeParticipant != null && afterParticipant != null) {
+                    participantSpacing
+                } else {
+                    0
+                }
+                (beforeParticipant?.labelWidth ?: 0) / 2 +
+                        spacing +
+                        (afterParticipant?.labelWidth ?: 0) / 2
+            } else {
+                // On a participant.
+                val participantIndex = columnIndex / 2
+                val beforeParticipant = participants.getOrNull(participantIndex - 1)
+                val participant = participants[participantIndex]
+                val afterParticipant = participants.getOrNull(participantIndex + 1)
+                val beforeSpacing = if (beforeParticipant != null) participantSpacing else 0
+                val afterSpacing = if (afterParticipant != null) participantSpacing else 0
+                (beforeParticipant?.labelWidth ?: 0) / 2 +
+                        beforeSpacing +
+                        participant.labelWidth +
+                        afterSpacing +
+                        (afterParticipant?.labelWidth ?: 0) / 2
             }
-            runningLeft += participant.columnWidth
-            if (index < participants.size - 1) {
-                // Don't add spacing after the last item.
-                runningLeft += spacing
+            columnWidths[columnIndex] = maxOf(
+                intrinsicWidth,
+                beforeExtent,
+                afterExtent,
+                participantLabelExtent
+            )
+
+            // Place participants horizontally.
+            if (columnIndex % 2 == 1) {
+                val participant = participants[columnIndex / 2]
+                // Previous width always includes start extent of this column.
+                val previousWidth = columnWidths[columnIndex - 1]
+                participant.centerXOffset = participantOffset + previousWidth
+                participantOffset += previousWidth
             }
         }
 
-        return runningLeft
+        // Measure and place items.
+        columnItems.forEachIndexed { columnIndex, items ->
+            val columnWidth = columnWidths[columnIndex]
+            val columnLeft = participants.getOrNull(columnIndex / 2 - 1)?.centerXOffset ?: 0
+            items.forEach { item ->
+                item.measure(maxWidth = columnWidth)
+                // Start means start of next participant (end of column), and end means start of
+                // previous participant (start of column).
+                val alignment = when (item.participantAlignment) {
+                    Start -> Alignment.End
+                    // Can't use CenterHorizontally because we need to center over the
+                    // _participant_, not the total column space.
+                    Over -> null
+                    End -> Alignment.Start
+                }
+                val left = if (alignment != null) {
+                    // Start/End
+                    alignment.align(item.width, columnWidth, layoutDirection)
+                } else {
+                    // Over
+                    val center = (item.participant as ParticipantState).centerXOffset - columnLeft
+                    center - item.width / 2
+                }
+                item.left = columnLeft + left
+            }
+        }
+
+        return participantOffset + columnWidths.last()
     }
 
     /** @return total height */

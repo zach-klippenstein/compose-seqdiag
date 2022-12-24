@@ -51,6 +51,12 @@ interface SequenceDiagramStyle {
     val lineBrush: Brush
     val lineWeight: Dp
 
+    /**
+     * If true, labels will be measured with constraints that attempt to make their dimensions
+     * closer to square. This means long labels will be broken into multiple lines.
+     */
+    val balanceLabelDimensions: Boolean
+
     companion object {
         val Default: SequenceDiagramStyle = BasicSequenceDiagramStyle()
     }
@@ -70,6 +76,7 @@ data class BasicSequenceDiagramStyle(
     override val noteBackgroundBrush: Brush = DefaultNoteBackgroundBrush,
     override val lineBrush: Brush = DefaultLineBrush,
     override val lineWeight: Dp = DefaultLineWeight,
+    override val balanceLabelDimensions: Boolean = true
 ) : SequenceDiagramStyle
 
 private val DefaultParticipantSpacing = 16.dp

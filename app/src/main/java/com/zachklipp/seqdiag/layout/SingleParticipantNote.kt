@@ -13,13 +13,16 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import com.zachklipp.seqdiag.ParticipantState
 import com.zachklipp.seqdiag.SequenceDiagramStyle
+import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.End
+import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.Over
+import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.Start
 
 /**
  * A note that is anchored to a single participant. Its size is unbounded.
  */
 internal class SingleParticipantNote(
     override val participant: ParticipantState,
-    val anchor: NoteAnchor,
+    override val participantAlignment: ParticipantAlignment,
     private val label: @Composable () -> Unit,
     private val style: SequenceDiagramStyle,
 ) : SingleParticipantRowItem() {
@@ -33,19 +36,24 @@ internal class SingleParticipantNote(
     override val height: Int
         get() = labelPlaceable?.height ?: 0
 
+    override val maxIntrinsicWidth: Int
+        get() = labelMeasurable?.maxIntrinsicWidth(Int.MAX_VALUE) ?: 0
+
     @Composable
-    override fun Content() {
+    override fun Content(style: SequenceDiagramStyle) {
         Box(
             propagateMinConstraints = true,
             modifier = Modifier
                 .then(
-                    when (anchor) {
-                        NoteAnchor.Start -> Modifier.padding(end = style.labelPadding)
-                        NoteAnchor.Over -> Modifier
-                        NoteAnchor.End -> Modifier.padding(start = style.labelPadding)
+                    when (participantAlignment) {
+                        Start -> Modifier.padding(end = style.labelPadding)
+                        Over -> Modifier
+                        End -> Modifier.padding(start = style.labelPadding)
                     }
                 )
-                .squarish()
+                .then(
+                    if (style.balanceLabelDimensions) Modifier.balancedAspectRatio() else Modifier
+                )
         ) {
             label()
         }
@@ -55,15 +63,11 @@ internal class SingleParticipantNote(
         labelMeasurable = nextMeasurable()
     }
 
-    override fun measure() {
-        labelPlaceable = labelMeasurable!!.measure(Constraints())
+    override fun measure(maxWidth: Int) {
+        labelPlaceable = labelMeasurable!!.measure(Constraints(maxWidth = maxWidth))
     }
 
     override fun Placeable.PlacementScope.place(density: Density) {
         labelPlaceable!!.placeRelative(left, top)
-    }
-
-    enum class NoteAnchor {
-        Start, Over, End
     }
 }

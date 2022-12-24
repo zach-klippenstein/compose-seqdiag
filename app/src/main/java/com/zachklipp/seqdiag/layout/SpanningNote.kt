@@ -32,7 +32,7 @@ internal class SpanningNote(
         get() = placeable?.width ?: 0
 
     @Composable
-    override fun Content() {
+    override fun Content(style: SequenceDiagramStyle) {
         Box(propagateMinConstraints = true) {
             label()
         }
