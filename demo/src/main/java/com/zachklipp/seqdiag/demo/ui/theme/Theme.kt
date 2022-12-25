@@ -1,4 +1,4 @@
-package com.zachklipp.seqdiag.ui.theme
+package com.zachklipp.seqdiag.demo.ui.theme
 
 import android.app.Activity
 import android.os.Build

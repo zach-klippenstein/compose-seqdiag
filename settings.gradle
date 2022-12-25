@@ -13,4 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "compose-seqdiag"
-include ':app'
+include ':demo'
+include ':seqdiag'

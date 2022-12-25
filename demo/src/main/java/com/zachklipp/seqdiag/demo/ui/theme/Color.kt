@@ -1,4 +1,4 @@
-package com.zachklipp.seqdiag.ui.theme
+package com.zachklipp.seqdiag.demo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.zachklipp.seqdiag
+package com.zachklipp.seqdiag.demo
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -27,10 +27,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
-import com.zachklipp.seqdiag.ui.theme.ComposeSeqDiagTheme
+import com.zachklipp.seqdiag.Label
+import com.zachklipp.seqdiag.Note
+import com.zachklipp.seqdiag.NoteBox
+import com.zachklipp.seqdiag.SequenceDiagram
+import com.zachklipp.seqdiag.SequenceDiagramStyle
+import com.zachklipp.seqdiag.createParticipant
+import com.zachklipp.seqdiag.demo.ui.theme.ComposeSeqDiagTheme
+import com.zachklipp.seqdiag.noteOver
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
