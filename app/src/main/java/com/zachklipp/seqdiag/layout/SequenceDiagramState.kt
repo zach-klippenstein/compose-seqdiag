@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
@@ -19,6 +20,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection.Ltr
+import androidx.compose.ui.unit.LayoutDirection.Rtl
 import com.zachklipp.seqdiag.LineBuilder
 import com.zachklipp.seqdiag.Participant
 import com.zachklipp.seqdiag.ParticipantState
@@ -347,7 +350,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
                 }
                 val left = if (alignment != null) {
                     // Start/End
-                    alignment.align(item.width, columnWidth, layoutDirection)
+                    alignment.align(item.width, columnWidth, Ltr)
                 } else {
                     // Over
                     val center = (item.participant as ParticipantState).centerXOffset - columnLeft
@@ -388,16 +391,22 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
     private fun DrawScope.drawParticipantLines() {
         val brush = diagramStyle.lineBrush
         val width = diagramStyle.lineWeight.toPx()
-        participants.forEach {
-            val x = it.centerXOffset.toFloat()
-            val top = it.topLabelPlaceable?.height?.toFloat() ?: 0f
-            val bottom = size.height - (it.bottomLabelPlaceable?.height?.toFloat() ?: 0f)
-            drawLine(
-                brush = brush,
-                strokeWidth = width,
-                start = Offset(x, top),
-                end = Offset(x, bottom)
-            )
+        withTransform({
+            if (this@drawParticipantLines.layoutDirection == Rtl) {
+                scale(scaleX = -1f, scaleY = 1f)
+            }
+        }) {
+            participants.forEach {
+                val x = it.centerXOffset.toFloat()
+                val top = it.topLabelPlaceable?.height?.toFloat() ?: 0f
+                val bottom = size.height - (it.bottomLabelPlaceable?.height?.toFloat() ?: 0f)
+                drawLine(
+                    brush = brush,
+                    strokeWidth = width,
+                    start = Offset(x, top),
+                    end = Offset(x, bottom)
+                )
+            }
         }
     }
 
