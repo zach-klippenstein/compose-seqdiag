@@ -20,7 +20,6 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -66,7 +65,7 @@ private object BalancedAspectRatioModifier : LayoutModifier {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 private fun SmallWordPreview() {
     Column {
@@ -81,7 +80,7 @@ private fun SmallWordPreview() {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 private fun MediumWordPreview() {
     Column {
@@ -97,7 +96,7 @@ private fun MediumWordPreview() {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 private fun LargeWordPreview() {
     Column {
@@ -113,7 +112,7 @@ private fun LargeWordPreview() {
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
 private fun VariedWordPreview() {
     Column {
