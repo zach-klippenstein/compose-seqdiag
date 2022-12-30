@@ -1,0 +1,37 @@
+name: gradle unit tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '19'
+        distribution: 'temurin'
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+      with:
+        arguments: testDebug verifyPaparazziDebug
+    - name: Archive test reports
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: test-reports
+        if-no-files-found: error
+        path: |
+          ./**/build/reports/
+          ./**/out/failures/
+
