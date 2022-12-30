@@ -18,6 +18,6 @@ class DemoTest {
             DemoApp()
         }
 
-        rule.onNodeWithText("Start the sequence, vroom vroom!").assertIsDisplayed()
+        rule.onNodeWithText("Label on a line").assertIsDisplayed()
     }
 }

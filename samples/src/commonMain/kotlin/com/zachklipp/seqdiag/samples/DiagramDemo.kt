@@ -15,12 +15,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect.Companion.dashPathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.zachklipp.seqdiag.Label
 import com.zachklipp.seqdiag.Note
 import com.zachklipp.seqdiag.NoteBox
@@ -58,8 +63,9 @@ fun DemoApp() {
 
 @Composable
 fun DiagramDemo(balanceLabelDimensions: Boolean = true) {
-    var participantValue by remember { mutableStateOf(TextFieldValue("(type)")) }
-    var noteValue by remember { mutableStateOf(TextFieldValue("(type)")) }
+    var participantValue by remember { mutableStateOf(TextFieldValue("(type: editable label!)")) }
+    var noteValue by remember { mutableStateOf(TextFieldValue("(type: editable label!)")) }
+    val density = LocalDensity.current
 
     SequenceDiagram(style = object : SequenceDiagramStyle by SequenceDiagramStyle.Default {
         override val balanceLabelDimensions: Boolean = balanceLabelDimensions
@@ -77,12 +83,19 @@ fun DiagramDemo(balanceLabelDimensions: Boolean = true) {
         val actor3 = createParticipant { Note("Actor 3 has a really long name") }
 
         actor1.lineTo(actor2)
-            .label { Label("Start the sequence, vroom vroom!") }
+            .label { Label("Label on a line") }
         actor2.lineTo(actor3)
-            .color(Color.Red)
-        noteToStartOf(actor1) { Note("Hello world what is going on") }
+            .brush(Brush.horizontalGradient(0f to Color.Red, 1f to Color.Green))
+            .stroke(
+                Stroke(
+                    width = with(density) { 5.dp.toPx() },
+                    pathEffect = dashPathEffect(floatArrayOf(10f, 10f))
+                )
+            )
+            .label { Label("Lines can be styled") }
+        noteToStartOf(actor1) { Note("Note to start") }
         actor3.lineTo(actor2)
-        noteOver(actor2) { Note("…") }
+        noteOver(actor2) { Note("Note over") }
         noteOver(actor2) {
             BasicTextField(
                 value = noteValue,
@@ -91,15 +104,14 @@ fun DiagramDemo(balanceLabelDimensions: Boolean = true) {
                 decorationBox = { NoteBox { it() } }
             )
         }
-        noteOver(actor2) { Note("this is a really really really long note") }
+        noteOver(actor2) { Note("Even longer note over a participant to show wrapping") }
         actor3 lineTo actor1
-        noteToEndOf(actor1) { Note("World") }
-        noteToEndOf(actor3) { Note("Another really long note") }
+        noteToEndOf(actor1) { Note("Note to end") }
+        noteToEndOf(actor3) { Note("Another really long note to the end of a participant") }
         actor1.lineTo(actor1)
             .label { Label("It's a loop!") }
         actor2.lineTo(actor2)
-            .label { Label("It's a loop with a really long description wow.") }
-        noteToEndOf(actor2) { Note("Foo") }
-        noteOver(actor1, actor2, actor3) { Note("All together now") }
+            .label { Label("It's a loop with a really long description.") }
+        noteOver(actor1, actor2, actor3) { Note("Note over a bunch of participants") }
     }
 }
