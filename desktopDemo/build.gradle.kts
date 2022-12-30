@@ -18,7 +18,7 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                implementation(project(":seqdiag"))
+                implementation(project(":samples"))
                 implementation(compose.desktop.currentOs)
             }
         }

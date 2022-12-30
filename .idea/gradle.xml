@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/androidDemo" />
             <option value="$PROJECT_DIR$/desktopDemo" />
+            <option value="$PROJECT_DIR$/samples" />
             <option value="$PROJECT_DIR$/seqdiag" />
           </set>
         </option>

@@ -29,5 +29,6 @@ rootProject.name = "compose-seqdiag"
 include(
     ":androidDemo",
     ":desktopDemo",
+    ":samples",
     ":seqdiag",
 )
