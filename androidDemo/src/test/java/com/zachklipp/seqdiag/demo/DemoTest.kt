@@ -16,6 +16,6 @@ class DemoTest {
 
     @Test
     fun launches() {
-        rule.onNodeWithText("Start the sequence, vroom vroom!").assertIsDisplayed()
+        rule.onNodeWithText("Label on a line").assertIsDisplayed()
     }
 }
