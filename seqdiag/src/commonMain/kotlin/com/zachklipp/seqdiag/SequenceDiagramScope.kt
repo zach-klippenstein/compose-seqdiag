@@ -6,9 +6,16 @@ interface SequenceDiagramScope {
     val diagramStyle: SequenceDiagramStyle
 
     fun createParticipant(
-        topLabel: @Composable () -> Unit,
+        topLabel: (@Composable () -> Unit)?,
         bottomLabel: (@Composable () -> Unit)?
     ): Participant
+
+    fun createParticipant(
+        topAndBottomLabel: @Composable () -> Unit
+    ) = createParticipant(
+        topLabel = topAndBottomLabel,
+        bottomLabel = topAndBottomLabel
+    )
 
     infix fun Participant.lineTo(other: Participant): LineBuilder
 
@@ -17,25 +24,18 @@ interface SequenceDiagramScope {
         label: @Composable () -> Unit
     )
 
+    fun noteOver(
+        firstParticipant: Participant,
+        vararg otherParticipants: Participant,
+        label: @Composable () -> Unit
+    ) = noteOver(
+        participants = ArrayList<Participant>(otherParticipants.size + 1).also {
+            it += firstParticipant
+            it.addAll(otherParticipants)
+        },
+        label = label
+    )
+
     fun noteToStartOf(participant: Participant, label: @Composable () -> Unit)
     fun noteToEndOf(participant: Participant, label: @Composable () -> Unit)
 }
-
-fun SequenceDiagramScope.createParticipant(
-    topAndBottomLabel: @Composable () -> Unit
-) = createParticipant(
-    topLabel = topAndBottomLabel,
-    bottomLabel = topAndBottomLabel
-)
-
-fun SequenceDiagramScope.noteOver(
-    firstParticipant: Participant,
-    vararg otherParticipants: Participant,
-    label: @Composable () -> Unit
-) = noteOver(
-    participants = ArrayList<Participant>(otherParticipants.size + 1).also {
-        it += firstParticipant
-        it.addAll(otherParticipants)
-    },
-    label = label
-)

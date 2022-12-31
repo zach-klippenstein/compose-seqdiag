@@ -21,6 +21,13 @@ jobs:
       with:
         java-version: '19'
         distribution: 'temurin'
+    - name: Setup Git LFS
+      run: |
+        # fail fast if files not checked in using git lfs
+        ./verify-lfs.sh
+        git lfs install --local
+        git lfs pull
+        git lfs ls-files -d -s
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:

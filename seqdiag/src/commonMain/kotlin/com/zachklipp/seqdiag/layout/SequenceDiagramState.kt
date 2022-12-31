@@ -52,8 +52,10 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
     @Composable
     fun Content() {
         participants.forEach {
-            Box(propagateMinConstraints = true) {
-                it.topLabel()
+            it.topLabel?.let { topLabel ->
+                Box(propagateMinConstraints = true) {
+                    topLabel()
+                }
             }
             it.bottomLabel?.let { bottomLabel ->
                 Box(propagateMinConstraints = true) {
@@ -123,7 +125,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
     // region SequenceDiagramScope
 
     override fun createParticipant(
-        topLabel: @Composable () -> Unit,
+        topLabel: @Composable (() -> Unit)?,
         bottomLabel: (@Composable () -> Unit)?
     ): Participant = ParticipantState(
         index = participants.size,

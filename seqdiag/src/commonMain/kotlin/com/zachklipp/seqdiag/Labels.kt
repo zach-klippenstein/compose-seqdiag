@@ -36,7 +36,10 @@ inline fun SequenceDiagramScope.NoteBox(
                     brush = lineBrush,
                     shape = noteShape
                 )
-                .background(noteBackgroundBrush)
+                .background(
+                    brush = noteBackgroundBrush,
+                    shape = noteShape
+                )
                 .padding(notePadding),
             propagateMinConstraints = true,
             content = content
@@ -64,7 +67,7 @@ private val PreviewSequenceDiagramScope = object : SequenceDiagramScope {
     override val diagramStyle: SequenceDiagramStyle = SequenceDiagramStyle.Default
 
     override fun createParticipant(
-        topLabel: @Composable () -> Unit,
+        topLabel: (@Composable () -> Unit)?,
         bottomLabel: (@Composable () -> Unit)?
     ): Participant = throw UnsupportedOperationException()
 
