@@ -2,6 +2,7 @@ import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     kotlin("multiplatform")
+    id("org.jetbrains.dokka")
     id("org.jetbrains.compose")
     id("com.android.library")
     id("app.cash.paparazzi")
