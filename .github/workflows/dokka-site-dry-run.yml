@@ -1,0 +1,31 @@
+# Workflow that builds the same dokka output as dokka-site.yml, but doesn't publish, so it can
+# run on every PR.
+name: Build dokka
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+
+jobs:
+  # Single deploy job since we're just deploying
+  build-dokka:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '19'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          # Dokka doesn't seem to like the configuration cache.
+          arguments: dokkaHtml --no-configuration-cache
