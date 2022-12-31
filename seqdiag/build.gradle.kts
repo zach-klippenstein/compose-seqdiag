@@ -1,15 +1,20 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("com.android.library")
     id("app.cash.paparazzi")
+    id("com.vanniktech.maven.publish")
 }
 
 group = "com.zachklipp.seqdiag"
-version = "1.0-SNAPSHOT"
+version = "0.2.0-SNAPSHOT"
 
 kotlin {
-    android()
+    android {
+        publishLibraryVariants("release")
+    }
     jvm("desktop") {
         compilations.all {
             kotlinOptions.jvmTarget = "11"
@@ -63,5 +68,36 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+}
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.DEFAULT)
+    signAllPublications()
+
+    pom {
+        name.set("Compose Sequence Diagram")
+        description.set("Sequence diagram renderer for Compose Multiplatform.")
+        inceptionYear.set("2022")
+        url.set("https://github.com/zach-klippenstein/compose-seqdiag")
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("zach-klippenstein")
+                name.set("Zach Klippenstein")
+                url.set("https://github.com/zach-klippenstein/")
+            }
+        }
+        scm {
+            url.set("https://github.com/zach-klippenstein/compose-seqdiag")
+            connection.set("scm:git:git://github.com/zach-klippenstein/compose-seqdiag.git")
+            developerConnection.set("scm:git:ssh://git@github.com/zach-klippenstein/compose-seqdiag.git")
+        }
     }
 }
