@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Layout
 import com.zachklipp.seqdiag.layout.SequenceDiagramState
 
-@Suppress("DEPRECATION")
 @Composable
 fun SequenceDiagram(
     modifier: Modifier = Modifier,

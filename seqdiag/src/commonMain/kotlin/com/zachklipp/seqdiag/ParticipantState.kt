@@ -6,12 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
-import com.zachklipp.seqdiag.Participant
 
 internal class ParticipantState(
     var index: Int,
-    val topLabel: @Composable () -> Unit,
-    val bottomLabel: @Composable (() -> Unit)?
+    val topLabel: (@Composable () -> Unit)?,
+    val bottomLabel: (@Composable () -> Unit)?
 ) : Participant {
     var topLabelMeasurable: Measurable? = null
     var bottomLabelMeasurable: Measurable? = null
