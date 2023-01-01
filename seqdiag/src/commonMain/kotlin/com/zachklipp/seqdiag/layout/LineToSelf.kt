@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import com.zachklipp.seqdiag.ArrowHead
+import com.zachklipp.seqdiag.ArrowHeadType
 import com.zachklipp.seqdiag.ArrowToSelf
 import com.zachklipp.seqdiag.LineBuilder
 import com.zachklipp.seqdiag.OverrideTextStyle
@@ -32,7 +32,6 @@ import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignmen
 
 internal class LineToSelf(
     override val participant: ParticipantState,
-    private val style: SequenceDiagramStyle,
 ) : SingleParticipantRowItem(), LineBuilder {
 
     private var measurable: Measurable? = null
@@ -40,6 +39,7 @@ internal class LineToSelf(
 
     private var brush: Brush? by mutableStateOf(null)
     private var stroke by mutableStateOf<Stroke?>(null)
+    private var arrowHeadType by mutableStateOf(ArrowHeadType.Filled)
     private var label by mutableStateOf<(@Composable () -> Unit)?>(null)
 
     override val height: Int
@@ -54,6 +54,7 @@ internal class LineToSelf(
 
     override fun brush(brush: Brush): LineBuilder = apply { this.brush = brush }
     override fun stroke(stroke: Stroke): LineBuilder = apply { this.stroke = stroke }
+    override fun arrowHeadType(type: ArrowHeadType) = apply { this.arrowHeadType = type }
     override fun label(content: @Composable () -> Unit): LineBuilder =
         apply { this.label = content }
 
@@ -66,7 +67,7 @@ internal class LineToSelf(
             ArrowToSelf(
                 brush = brush ?: style.lineBrush,
                 stroke = stroke ?: style.getLineStroke(LocalDensity.current),
-                head = ArrowHead.Outline,
+                head = arrowHeadType,
                 modifier = Modifier
                     .fillMaxHeight()
                     .heightIn(min = 20.dp)

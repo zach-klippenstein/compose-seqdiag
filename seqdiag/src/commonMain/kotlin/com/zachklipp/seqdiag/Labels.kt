@@ -74,7 +74,7 @@ private val PreviewSequenceDiagramScope = object : SequenceDiagramScope {
     override fun Participant.lineTo(other: Participant): LineBuilder =
         throw UnsupportedOperationException()
 
-    override fun noteOver(participants: List<Participant>, label: @Composable () -> Unit): Unit =
+    override fun noteOver(participants: Collection<Participant>, label: @Composable () -> Unit) =
         throw UnsupportedOperationException()
 
     override fun noteToStartOf(participant: Participant, label: @Composable () -> Unit): Unit =

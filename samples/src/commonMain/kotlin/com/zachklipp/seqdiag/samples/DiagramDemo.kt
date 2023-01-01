@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.zachklipp.seqdiag.ArrowHeadType
 import com.zachklipp.seqdiag.Label
 import com.zachklipp.seqdiag.Note
 import com.zachklipp.seqdiag.NoteBox
@@ -89,9 +90,10 @@ fun DiagramDemo(balanceLabelDimensions: Boolean = true) {
             .stroke(
                 Stroke(
                     width = with(density) { 5.dp.toPx() },
-                    pathEffect = dashPathEffect(floatArrayOf(10f, 10f))
+                    pathEffect = dashPathEffect(floatArrayOf(20f, 10f))
                 )
             )
+            .arrowHeadType(ArrowHeadType.Outlined)
             .label { Label("Lines can be styled") }
         noteToStartOf(actor1) { Note("Note to start") }
         actor3.lineTo(actor2)
