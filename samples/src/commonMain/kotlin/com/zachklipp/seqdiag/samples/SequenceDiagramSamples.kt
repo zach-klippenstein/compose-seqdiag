@@ -15,6 +15,8 @@ import com.zachklipp.seqdiag.BasicSequenceDiagramStyle
 import com.zachklipp.seqdiag.Label
 import com.zachklipp.seqdiag.Note
 import com.zachklipp.seqdiag.SequenceDiagram
+import com.zachklipp.seqdiag.createParticipant
+import com.zachklipp.seqdiag.noteOver
 
 // New demos should only be added to the end of this file, to preserve existing links.
 
