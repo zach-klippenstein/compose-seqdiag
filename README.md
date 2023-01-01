@@ -8,7 +8,9 @@ targets. Both left-to-right and right-to-left layout directions are supported.
 
 More information is available at the [project website](http://www.zachklipp.com/compose-seqdiag/index.html).
 
-![sample diagram](.assets/sample-diagram.png)
+Sequence diagrams made with this library look like this:
+
+<img src=".assets/sample-diagram.png" width="500">
 
 ## Usage
 
