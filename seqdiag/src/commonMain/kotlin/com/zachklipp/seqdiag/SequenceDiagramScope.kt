@@ -5,6 +5,9 @@ import androidx.compose.runtime.Composable
 /**
  * Defines the DSL used to specify sequence diagrams. Receiver of the content parameter of the
  * [SequenceDiagram] composable.
+ *
+ * @sample com.zachklipp.seqdiag.samples.BasicSequenceDiagram
+ * @sample com.zachklipp.seqdiag.samples.NotesAroundParticipant
  */
 // This should not contain default methods that take composable lambdas: there's an intermittent
 // ClassCastException because the composable lambda is being cast to a Function0 for some reason.
@@ -20,6 +23,8 @@ interface SequenceDiagramScope {
      * specified as lines between participants and notes anchored to them. Participants are placed
      * horizontally from start to end in the order they're created.
      *
+     * @sample com.zachklipp.seqdiag.samples.BasicSequenceDiagram
+     *
      * @param topLabel A composable that will be used as the label at the top of the participant.
      * In most cases this should be a [Note] composable.
      * @param bottomLabel A composable that will be used as the label at the bottom of the
@@ -33,12 +38,16 @@ interface SequenceDiagramScope {
     /**
      * Specifies a line drawn from this [Participant] to [other]. The optional properties of the
      * line can be configured by calling methods on the returned [LineBuilder].
+     *
+     * @sample com.zachklipp.seqdiag.samples.BasicSequenceDiagram
      */
     infix fun Participant.lineTo(other: Participant): LineBuilder
 
     /**
      * Specifies a composable that represents a note that is placed "over", or covering, one or more
      * [participants].
+     *
+     * @sample com.zachklipp.seqdiag.samples.NotesAroundParticipant
      *
      * @param participants The list of [Participant]s that this note covers. Must contain at least
      * one element. If the note only covers a single participant, the width of the label will be
@@ -59,6 +68,8 @@ interface SequenceDiagramScope {
      * Specifies a composable that represents a note that is placed on the start side of a single
      * [Participant]s.
      *
+     * @sample com.zachklipp.seqdiag.samples.NotesAroundParticipant
+     *
      * @param participant The [Participant]s that this note is anchored to.
      * @param label The composable that represents the note. In most cases this should be the [Note]
      * composable. If the [SequenceDiagramStyle.balanceLabelDimensions] flag is true, the label will
@@ -70,6 +81,8 @@ interface SequenceDiagramScope {
     /**
      * Specifies a composable that represents a note that is placed on the end side of a single
      * [Participant].
+     *
+     * @sample com.zachklipp.seqdiag.samples.NotesAroundParticipant
      *
      * @param participant The [Participant]s that this note is anchored to.
      * @param label The composable that represents the note. In most cases this should be the [Note]
@@ -89,6 +102,8 @@ interface SequenceDiagramScope {
  * This is a convenience method for calling [SequenceDiagramScope.createParticipant] with the same
  * label at the top and bottom.
  *
+ * @sample com.zachklipp.seqdiag.samples.BasicSequenceDiagram
+ *
  * @param topAndBottomLabel A composable that will be used as the label at the top of the
  * participant. In most cases this should be a [Note] composable.
  */
@@ -103,6 +118,8 @@ fun SequenceDiagramScope.createParticipant(topAndBottomLabel: @Composable () -> 
 /**
  * Specifies a composable that represents a note that is placed "over", or covering, one or more
  * [Participant]s.
+ *
+ * @sample com.zachklipp.seqdiag.samples.NotesAroundParticipant
  *
  * @param firstParticipant The first (and possibly only) [Participant] that this note covers. If the
  * note only covers a single participant, the width of the label will be used to determine the space

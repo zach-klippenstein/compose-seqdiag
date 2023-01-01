@@ -1,10 +1,8 @@
 package com.zachklipp.seqdiag
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.drawscope.Stroke
 
 /**
  * A fluent-style builder interface for configuring optional properties of lines pointing from one
@@ -12,28 +10,21 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  */
 interface LineBuilder {
     /**
-     * Specifies the color of the line. If this is called after [brush], this call will overwrite
-     * the brush.
+     * Specifies the [LineStyle] to use for the line and arrow. See the [LineStyle] documentation
+     * for more information.
+     *
+     * If called multiple times, only the properties of [style] that are specified in later calls
+     * will override earlier calls. E.g. the following two calls are equivalent:
+     * ```
+     * .style(LineStyle(brush = SolidColor(Color.Red)))
+     * .style(LineStyle(width = 4.dp))
+     *
+     * // vs
+     *
+     * .style(LineStyle(brush = SolidColor(Color.Red), width = 4.dp))
+     * ```
      */
-    fun color(color: Color): LineBuilder = brush(SolidColor(color))
-
-    /**
-     * Specifies a [Brush] to use to draw the line. If this is called after [color], this call will
-     * overwrite the color.
-     */
-    fun brush(brush: Brush): LineBuilder
-
-    /**
-     * Specifies the [Stroke] used to draw the line.
-     */
-    fun stroke(stroke: Stroke): LineBuilder
-
-    /**
-     * The style of the arrow head drawn at the end of the line. See [ArrowHeadType] for possible
-     * values. To configure the default type used for all arrows, specify the
-     * [SequenceDiagramStyle.arrowHeadType].
-     */
-    fun arrowHeadType(type: ArrowHeadType): LineBuilder
+    fun style(style: LineStyle): LineBuilder
 
     /**
      * Specifies a composable to use as the label for the line.
@@ -50,3 +41,15 @@ interface LineBuilder {
      */
     fun label(content: @Composable () -> Unit): LineBuilder
 }
+
+/**
+ * Specifies the color of the line.
+ */
+fun LineBuilder.color(color: Color): LineBuilder = style(LineStyle(brush = SolidColor(color)))
+
+/**
+ * The style of the arrow head drawn at the end of the line. See [ArrowHeadType] for possible
+ * values.
+ */
+fun LineBuilder.arrowHeadType(type: ArrowHeadType): LineBuilder =
+    style(LineStyle(arrowHeadType = type))

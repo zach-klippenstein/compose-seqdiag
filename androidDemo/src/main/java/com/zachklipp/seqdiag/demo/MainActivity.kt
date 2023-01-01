@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 import com.zachklipp.seqdiag.samples.DemoApp
-import com.zachklipp.seqdiag.samples.DiagramDemo
+import com.zachklipp.seqdiag.samples.DiagramDevDemo
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,19 +23,19 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun DiagramDemoPreview() {
-    DiagramDemo()
+    DiagramDevDemo()
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DiagramDemoPreviewNoBalancing() {
-    DiagramDemo(balanceLabelDimensions = false)
+    DiagramDevDemo(balanceLabelDimensions = false)
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DiagramDemoPreviewRtl() {
     CompositionLocalProvider(LocalLayoutDirection provides Rtl) {
-        DiagramDemo()
+        DiagramDevDemo()
     }
 }

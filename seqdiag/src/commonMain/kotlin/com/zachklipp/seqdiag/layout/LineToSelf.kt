@@ -12,8 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
@@ -21,26 +19,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import com.zachklipp.seqdiag.ArrowHeadType
 import com.zachklipp.seqdiag.ArrowToSelf
-import com.zachklipp.seqdiag.LineBuilder
+import com.zachklipp.seqdiag.DefaultArrowHeadType
+import com.zachklipp.seqdiag.DefaultLineBrush
 import com.zachklipp.seqdiag.OverrideTextStyle
 import com.zachklipp.seqdiag.ParticipantState
 import com.zachklipp.seqdiag.SequenceDiagramStyle
-import com.zachklipp.seqdiag.getLineStroke
+import com.zachklipp.seqdiag.toLineStroke
 import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.End
 
 internal class LineToSelf(
     override val participant: ParticipantState,
-) : SingleParticipantRowItem(), LineBuilder {
+    private val builder: LineBuilderImpl
+) : SingleParticipantRowItem() {
 
     private var measurable: Measurable? = null
     private var placeable: Placeable? by mutableStateOf(null)
-
-    private var brush: Brush? by mutableStateOf(null)
-    private var stroke by mutableStateOf<Stroke?>(null)
-    private var arrowHeadType by mutableStateOf(ArrowHeadType.Filled)
-    private var label by mutableStateOf<(@Composable () -> Unit)?>(null)
 
     override val height: Int
         get() = placeable?.height ?: 0
@@ -52,27 +46,22 @@ internal class LineToSelf(
     override val maxIntrinsicWidth: Int
         get() = measurable?.maxIntrinsicWidth(Constraints.Infinity) ?: 0
 
-    override fun brush(brush: Brush): LineBuilder = apply { this.brush = brush }
-    override fun stroke(stroke: Stroke): LineBuilder = apply { this.stroke = stroke }
-    override fun arrowHeadType(type: ArrowHeadType) = apply { this.arrowHeadType = type }
-    override fun label(content: @Composable () -> Unit): LineBuilder =
-        apply { this.label = content }
-
     @Composable
     override fun Content(style: SequenceDiagramStyle) {
         Row(
             modifier = Modifier.height(IntrinsicSize.Max),
             horizontalArrangement = spacedBy(style.labelPadding)
         ) {
+            val resolvedStyle = builder.style.fillMissingFrom(style.lineStyle)
             ArrowToSelf(
-                brush = brush ?: style.lineBrush,
-                stroke = stroke ?: style.getLineStroke(LocalDensity.current),
-                head = arrowHeadType,
+                brush = resolvedStyle.brush ?: DefaultLineBrush,
+                stroke = resolvedStyle.toLineStroke(LocalDensity.current),
+                head = resolvedStyle.arrowHeadType ?: DefaultArrowHeadType,
                 modifier = Modifier
                     .fillMaxHeight()
                     .heightIn(min = 20.dp)
             )
-            label?.let {
+            builder.label?.let {
                 OverrideTextStyle({ it.copy(textAlign = TextAlign.Start) }) {
                     Box(
                         propagateMinConstraints = true,
