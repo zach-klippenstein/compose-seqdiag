@@ -8,9 +8,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.CacheDrawScope
+import androidx.compose.ui.draw.DrawResult
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -21,6 +24,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
+import com.zachklipp.seqdiag.DefaultLineBrush
 import com.zachklipp.seqdiag.LineBuilder
 import com.zachklipp.seqdiag.Participant
 import com.zachklipp.seqdiag.ParticipantState
@@ -29,6 +33,7 @@ import com.zachklipp.seqdiag.SequenceDiagramStyle
 import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.End
 import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.Over
 import com.zachklipp.seqdiag.layout.SingleParticipantRowItem.ParticipantAlignment.Start
+import com.zachklipp.seqdiag.toLineStroke
 
 internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
 
@@ -113,9 +118,13 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         }
     }
 
-    fun ContentDrawScope.draw() {
-        drawParticipantLines()
-        drawContent()
+    fun CacheDrawScope.draw(): DrawResult {
+        val brush = diagramStyle.lineStyle.brush ?: DefaultLineBrush
+        val stroke = diagramStyle.lineStyle.toLineStroke(this)
+        return onDrawWithContent {
+            drawParticipantLines(brush, stroke)
+            drawContent()
+        }
     }
 
     // endregion
@@ -133,18 +142,18 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         participants += it
     }
 
-    override fun Participant.lineTo(other: Participant): LineBuilder {
-        return if (this == other) {
-            LineToSelf(this as ParticipantState)
-        } else {
-            Line(
-                from = this as ParticipantState,
-                to = other as ParticipantState,
-            )
-        }.also {
-            rowItems += it
+    override fun Participant.lineTo(other: Participant): LineBuilder =
+        LineBuilderImpl().also { builder ->
+            rowItems += if (this == other) {
+                LineToSelf(this as ParticipantState, builder)
+            } else {
+                Line(
+                    from = this as ParticipantState,
+                    to = other as ParticipantState,
+                    builder = builder
+                )
+            }
         }
-    }
 
     override fun noteOver(participants: Collection<Participant>, label: @Composable () -> Unit) {
         require(participants.isNotEmpty()) { "Participants list must not be empty" }
@@ -402,9 +411,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         return y + bottomLabelsHeight
     }
 
-    private fun DrawScope.drawParticipantLines() {
-        val brush = diagramStyle.lineBrush
-        val width = diagramStyle.lineWeight.toPx()
+    private fun DrawScope.drawParticipantLines(brush: Brush, stroke: Stroke) {
         withTransform({
             if (this@drawParticipantLines.layoutDirection == Rtl) {
                 scale(scaleX = -1f, scaleY = 1f)
@@ -416,7 +423,8 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
                 val bottom = size.height - (it.bottomLabelPlaceable?.height?.toFloat() ?: 0f)
                 drawLine(
                     brush = brush,
-                    strokeWidth = width,
+                    strokeWidth = stroke.width,
+                    pathEffect = stroke.pathEffect,
                     start = Offset(x, top),
                     end = Offset(x, bottom)
                 )

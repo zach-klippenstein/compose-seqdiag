@@ -17,9 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect.Companion.dashPathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -28,6 +25,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.zachklipp.seqdiag.ArrowHeadType
 import com.zachklipp.seqdiag.Label
+import com.zachklipp.seqdiag.LineStyle
 import com.zachklipp.seqdiag.Note
 import com.zachklipp.seqdiag.NoteBox
 import com.zachklipp.seqdiag.SequenceDiagram
@@ -57,16 +55,19 @@ fun DemoApp() {
             Switch(checked = rtl, onCheckedChange = { rtl = it })
         }
         CompositionLocalProvider(LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
-            DiagramDemo(balanceLabelDimensions = balanceLabels)
+            DiagramDevDemo(balanceLabelDimensions = balanceLabels)
         }
     }
 }
 
+/**
+ * A demo that shows as many of the layout features as possible in one diagram, for use while
+ * developing.
+ */
 @Composable
-fun DiagramDemo(balanceLabelDimensions: Boolean = true) {
+fun DiagramDevDemo(balanceLabelDimensions: Boolean = true) {
     var participantValue by remember { mutableStateOf(TextFieldValue("(type: editable label!)")) }
     var noteValue by remember { mutableStateOf(TextFieldValue("(type: editable label!)")) }
-    val density = LocalDensity.current
 
     SequenceDiagram(style = object : SequenceDiagramStyle by SequenceDiagramStyle.Default {
         override val balanceLabelDimensions: Boolean = balanceLabelDimensions
@@ -86,15 +87,15 @@ fun DiagramDemo(balanceLabelDimensions: Boolean = true) {
         actor1.lineTo(actor2)
             .label { Label("Label on a line") }
         actor2.lineTo(actor3)
-            .brush(Brush.horizontalGradient(0f to Color.Red, 1f to Color.Green))
-            .stroke(
-                Stroke(
-                    width = with(density) { 5.dp.toPx() },
-                    pathEffect = dashPathEffect(floatArrayOf(20f, 10f))
+            .label { Label("Lines can be styled") }
+            .style(
+                LineStyle(
+                    brush = Brush.horizontalGradient(0f to Color.Red, 1f to Color.Green),
+                    width = 5.dp,
+                    dashIntervals = 10.dp to 5.dp,
+                    arrowHeadType = ArrowHeadType.Outlined
                 )
             )
-            .arrowHeadType(ArrowHeadType.Outlined)
-            .label { Label("Lines can be styled") }
         noteToStartOf(actor1) { Note("Note to start") }
         actor3.lineTo(actor2)
         noteOver(actor2) { Note("Note over") }

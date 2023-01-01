@@ -1,4 +1,6 @@
 import com.vanniktech.maven.publish.SonatypeHost
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
     kotlin("multiplatform")
@@ -71,6 +73,30 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+}
+
+tasks.withType<DokkaTask>().configureEach {
+    dokkaSourceSets.configureEach {
+        includes.from("Module.md")
+
+        samples.from(
+            projectDir.resolve(
+                "src/commonMain/kotlin/com/zachklipp/seqdiag/samples/SequenceDiagramSamples.kt"
+            )
+        )
+
+        sourceLink {
+            localDirectory.set(file("src/commonMain/kotlin"))
+
+            // URL showing where the source code can be accessed through the web browser
+            remoteUrl.set(
+                "https://github.com/zach-klippenstein/compose-seqdiag/blob/master/seqdiag/src/commonMain/kotlin".toHttpUrl()
+                    .toUrl()
+            )
+            // Suffix which is used to append the line number to the URL. Use #L for GitHub
+            remoteLineSuffix.set("#L")
+        }
     }
 }
 

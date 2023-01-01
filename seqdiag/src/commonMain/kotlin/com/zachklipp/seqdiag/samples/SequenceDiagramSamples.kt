@@ -14,15 +14,21 @@ import androidx.compose.ui.unit.dp
 import com.zachklipp.seqdiag.ArrowHeadType
 import com.zachklipp.seqdiag.BasicSequenceDiagramStyle
 import com.zachklipp.seqdiag.Label
+import com.zachklipp.seqdiag.LineStyle
 import com.zachklipp.seqdiag.Note
 import com.zachklipp.seqdiag.SequenceDiagram
+import com.zachklipp.seqdiag.arrowHeadType
+import com.zachklipp.seqdiag.color
 import com.zachklipp.seqdiag.createParticipant
 import com.zachklipp.seqdiag.noteOver
 
-// New demos should only be added to the end of this file, to preserve existing links.
+// TODO These should be moved to a separate source set or module when that is supported by Kotlin
+//  multiplatform. I tried doing this a bunch of different ways and couldn't make anything work.
 
 @Composable
-fun BasicSequenceDiagram() {
+internal fun BasicSequenceDiagram() {
+    // Specifies a simple sequence diagram that consists of three participants with some lines
+    // between them.
     SequenceDiagram {
         val alice = createParticipant { Note("Alice") }
         val bob = createParticipant { Note("Bob") }
@@ -46,7 +52,8 @@ fun BasicSequenceDiagram() {
 }
 
 @Composable
-fun NotesAroundParticipant() {
+internal fun NotesAroundParticipant() {
+    // In addition to lines, notes can also be placed around participants.
     SequenceDiagram {
         val alice = createParticipant { Note("Alice") }
         createParticipant { Note("Bob") }
@@ -61,7 +68,10 @@ fun NotesAroundParticipant() {
 }
 
 @Composable
-fun Styling() {
+internal fun Styling() {
+    // Most of the internal layout and drawing properties of the sequence diagram can be controlled
+    // via a SequenceDiagramStyle. BasicSequenceDiagramStyle is an immutable implementation of that
+    // interface.
     SequenceDiagram(
         style = BasicSequenceDiagramStyle(
             participantSpacing = 10.dp,
@@ -73,9 +83,11 @@ fun Styling() {
             noteBackgroundBrush = Brush.radialGradient(
                 0f to Color.White, 1f to Color.LightGray
             ),
-            lineBrush = SolidColor(Color.Blue),
-            lineWeight = 4.dp,
-            arrowHeadType = ArrowHeadType.Outlined,
+            lineStyle = LineStyle(
+                brush = SolidColor(Color.Blue),
+                width = 4.dp,
+                arrowHeadType = ArrowHeadType.Outlined,
+            ),
         )
     ) {
         val alice = createParticipant { Note("Alice") }
@@ -90,7 +102,9 @@ fun Styling() {
 }
 
 @Composable
-fun DimensionBalancing() {
+internal fun DimensionBalancing() {
+    // By default, the layout algorithm tries to measure notes and labels that don't span multiple
+    // participants to make them closer to square by trying to balance their width vs their height.
     SequenceDiagram(style = BasicSequenceDiagramStyle(balanceLabelDimensions = false)) {
         val alice = createParticipant { Note("Alice") }
         noteOver(alice) { Note("A note with long text that would be wrapped by default.") }

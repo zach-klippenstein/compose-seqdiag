@@ -8,7 +8,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.takeOrElse
 
+/**
+ * Standard note styled by the [SequenceDiagramStyle]. To just draw text without the border use the
+ * [Label] composable. To use your own composables with the standard note background and border,
+ * use [NoteBox].
+ *
+ * This is a convenience function for wrapping a [Label] inside a [NoteBox].
+ *
+ * @sample com.zachklipp.seqdiag.samples.NotesAroundParticipant
+ */
 @Composable
 fun SequenceDiagramScope.Note(text: String, modifier: Modifier = Modifier) {
     NoteBox(modifier) {
@@ -16,35 +26,48 @@ fun SequenceDiagramScope.Note(text: String, modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Standard text styled by the [SequenceDiagramStyle]. To draw a standard background and border
+ * around a label, use the [Note] composable.
+ *
+ * @sample com.zachklipp.seqdiag.samples.NotesAroundParticipant
+ */
 @Composable
 fun SequenceDiagramScope.Label(text: String, modifier: Modifier = Modifier) {
-    val style = LocalTextStyle.current?.merge(diagramStyle.labelTextStyle)
-        ?: diagramStyle.labelTextStyle
+    val style = LocalTextStyle.current.merge(diagramStyle.labelTextStyle)
     BasicText(text, modifier = modifier, style = style)
 }
 
+/**
+ * A [Box] that is styled according to the [SequenceDiagramStyle]'s note properties.
+ */
 @Composable
 inline fun SequenceDiagramScope.NoteBox(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
-    with(diagramStyle) {
-        Box(
-            modifier = modifier
-                .border(
-                    width = lineWeight,
-                    brush = lineBrush,
-                    shape = noteShape
-                )
-                .background(
-                    brush = noteBackgroundBrush,
-                    shape = noteShape
-                )
-                .padding(notePadding),
-            propagateMinConstraints = true,
-            content = content
+    Box(
+        modifier = modifier.then(noteBoxModifier()),
+        propagateMinConstraints = true,
+        content = content
+    )
+}
+
+// TODO when context receivers are supported, expose this as a Modifier.style factory function
+//  on the scope, and deprecate the NoteBox composable.
+@PublishedApi
+internal fun SequenceDiagramScope.noteBoxModifier(): Modifier = with(diagramStyle) {
+    Modifier
+        .border(
+            width = lineStyle.width.takeOrElse { DefaultLineWidth },
+            brush = lineStyle.brush ?: DefaultLineBrush,
+            shape = noteShape
         )
-    }
+        .background(
+            brush = noteBackgroundBrush,
+            shape = noteShape
+        )
+        .padding(notePadding)
 }
 
 //@Preview
