@@ -70,9 +70,14 @@ internal class Line(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             label?.let {
+                // Only balance single-column labels, since multi-column ones are likely to have a
+                // lot more space.
+                val balanceLabel = style.balanceLabelDimensions && singleColumn
                 Box(
                     propagateMinConstraints = true,
-                    modifier = Modifier.padding(horizontal = style.labelPadding)
+                    modifier = Modifier
+                        .padding(horizontal = style.labelPadding)
+                        .then(if (balanceLabel) Modifier.balancedAspectRatio() else Modifier)
                 ) {
                     it()
                 }
