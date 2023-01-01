@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
+import kotlin.math.absoluteValue
 
 internal class ParticipantState(
     var index: Int,
@@ -19,9 +20,6 @@ internal class ParticipantState(
     var left: Int by mutableStateOf(0)
     var topLabelTop: Int by mutableStateOf(0)
     var bottomLabelTop: Int by mutableStateOf(0)
-
-    /** The width required to show the participant and all its row items. */
-    var columnWidth: Int by mutableStateOf(0)
 
     val topLabelHeight: Int get() = topLabelPlaceable?.height ?: 0
 
@@ -37,3 +35,9 @@ internal class ParticipantState(
             left = value - labelWidth / 2
         }
 }
+
+internal fun ParticipantState.isAdjacentTo(other: ParticipantState): Boolean =
+    (this.index - other.index).absoluteValue == 1
+
+internal fun Participant.isBefore(other: Participant): Boolean =
+    (this as ParticipantState).index < (other as ParticipantState).index

@@ -24,12 +24,12 @@ import com.zachklipp.seqdiag.Participant
 import com.zachklipp.seqdiag.ParticipantState
 import com.zachklipp.seqdiag.SequenceDiagramStyle
 import com.zachklipp.seqdiag.getLineStroke
+import com.zachklipp.seqdiag.isAdjacentTo
+import com.zachklipp.seqdiag.isBefore
 
 internal class Line(
     val from: ParticipantState,
     val to: ParticipantState,
-    val forwards: Boolean,
-    private val style: SequenceDiagramStyle,
 ) : SpanningRowItem(), LineBuilder {
     private var measurable: Measurable? = null
     private var placeable: Placeable? by mutableStateOf(null)
@@ -38,6 +38,15 @@ internal class Line(
     private var brush: Brush? by mutableStateOf(null)
     private var stroke by mutableStateOf<Stroke?>(null)
     private var label by mutableStateOf<(@Composable () -> Unit)?>(null)
+
+    /**
+     * True if this line only occupies a single column and doesn't span any participants, i.e.
+     * [from] and [to] are adjacent.
+     */
+    val singleColumn: Boolean
+        get() = from.isAdjacentTo(to)
+    val maxIntrinsicWidth: Int
+        get() = measurable?.maxIntrinsicWidth(Constraints.Infinity) ?: 0
 
     override val height: Int
         get() = placeable?.height ?: 0
@@ -60,6 +69,7 @@ internal class Line(
                     it()
                 }
             }
+            val forwards = from.isBefore(to)
             HorizontalArrow(
                 brush = brush ?: style.lineBrush,
                 stroke = stroke ?: style.getLineStroke(LocalDensity.current),

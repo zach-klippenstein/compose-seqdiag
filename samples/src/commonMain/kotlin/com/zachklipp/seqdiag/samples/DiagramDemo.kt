@@ -31,6 +31,8 @@ import com.zachklipp.seqdiag.Note
 import com.zachklipp.seqdiag.NoteBox
 import com.zachklipp.seqdiag.SequenceDiagram
 import com.zachklipp.seqdiag.SequenceDiagramStyle
+import com.zachklipp.seqdiag.createParticipant
+import com.zachklipp.seqdiag.noteOver
 
 @Composable
 fun DemoApp() {

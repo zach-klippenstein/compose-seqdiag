@@ -19,7 +19,6 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 import com.zachklipp.seqdiag.LineBuilder
@@ -85,7 +84,6 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         val totalWidth = measureColumns(
             participantSpacing = horizontalSpacing,
             itemPadding = labelPadding * 2,
-            layoutDirection = layoutDirection
         )
         measureSpanningRows()
         val totalHeight = calculateVerticalOffsets(verticalSpacing)
@@ -125,7 +123,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
     // region SequenceDiagramScope
 
     override fun createParticipant(
-        topLabel: @Composable (() -> Unit)?,
+        topLabel: (@Composable () -> Unit)?,
         bottomLabel: (@Composable () -> Unit)?
     ): Participant = ParticipantState(
         index = participants.size,
@@ -142,8 +140,6 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
             Line(
                 from = this as ParticipantState,
                 to = other as ParticipantState,
-                forwards = this.isBefore(other),
-                style = diagramStyle,
             )
         }.also {
             rowItems += it
@@ -186,14 +182,6 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
 
     // region Helpers
 
-    private fun Participant.isBefore(other: Participant): Boolean {
-        participants.forEach {
-            if (it == this) return true
-            if (it == other) return false
-        }
-        return false
-    }
-
     private fun collectMeasurables(measurables: List<Measurable>) {
         var i = 0
         participants.forEach {
@@ -232,7 +220,9 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
 
     private fun Density.measureSpanningRows() {
         rowItems.forEach { item ->
-            if (item is SpanningRowItem) {
+            // Lines that don't span multiple participants are handled by measureColumns since they
+            // affect the column width.
+            if (item is SpanningRowItem && !(item is Line && item.singleColumn)) {
                 val startParticipant = participants.first { it in item.participants }
                 val endParticipant = participants.last { it in item.participants }
                 val minStart = startParticipant.left - startParticipant.labelWidth / 2
@@ -250,13 +240,15 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         }
     }
 
-    private fun measureColumns(
+    private fun Density.measureColumns(
         participantSpacing: Int,
         itemPadding: Int,
-        layoutDirection: LayoutDirection
     ): Int {
         val numColumns = participants.size * 2 + 1
         val columnItems = Array(numColumns) { mutableVectorOf<SingleParticipantRowItem>() }
+        // Lines that don't span multiple participants need to affect their column width so we need
+        // to include them in the measurements in this method.
+        val singleColumnLines = Array(participants.size) { mutableVectorOf<Line>() }
         val columnIntrinsicWidths = IntArray(numColumns)
         val columnWidths = IntArray(numColumns)
 
@@ -276,9 +268,19 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
                     0, numColumns - 1 -> 0
                     else -> itemPadding
                 }
+                // Horizontal label padding is part of the intrinsic width.
                 columnIntrinsicWidths[columnIndex] = maxOf(
                     columnIntrinsicWidths[columnIndex],
                     item.maxIntrinsicWidth + nonParticipantPadding
+                )
+            } else if (item is Line && item.singleColumn) {
+                val participantIndex = minOf(item.from.index, item.to.index)
+                val columnIndex = participantIndex * 2 + 2
+                singleColumnLines[participantIndex] += item
+                // Horizontal label padding is part of the intrinsic width.
+                columnIntrinsicWidths[columnIndex] = maxOf(
+                    columnIntrinsicWidths[columnIndex],
+                    item.maxIntrinsicWidth
                 )
             }
         }
@@ -359,6 +361,16 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
                     center - item.width / 2
                 }
                 item.left = columnLeft + left
+            }
+        }
+        // This loop performs the same logic as above, but for single-column lines.
+        singleColumnLines.forEachIndexed { participantIndex, lines ->
+            val columnIndex = participantIndex * 2 + 2
+            val columnWidth = columnWidths[columnIndex]
+            val columnLeft = participants.getOrNull(participantIndex)?.centerXOffset ?: 0
+            lines.forEach { line ->
+                with(line) { measure(minWidth = columnWidth, maxWidth = columnWidth) }
+                line.left = columnLeft
             }
         }
 

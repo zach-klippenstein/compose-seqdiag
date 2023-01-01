@@ -50,7 +50,7 @@ internal class LineToSelf(
     override val participantAlignment: ParticipantAlignment
         get() = End
     override val maxIntrinsicWidth: Int
-        get() = measurable?.maxIntrinsicWidth(Int.MAX_VALUE) ?: 0
+        get() = measurable?.maxIntrinsicWidth(Constraints.Infinity) ?: 0
 
     override fun brush(brush: Brush): LineBuilder = apply { this.brush = brush }
     override fun stroke(stroke: Stroke): LineBuilder = apply { this.stroke = stroke }
