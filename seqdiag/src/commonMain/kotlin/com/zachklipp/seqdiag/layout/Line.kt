@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -64,7 +65,10 @@ internal class Line(
 
     @Composable
     override fun Content(style: SequenceDiagramStyle) {
-        Column(verticalArrangement = spacedBy(style.labelPadding)) {
+        Column(
+            verticalArrangement = spacedBy(style.labelPadding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             label?.let {
                 Box(
                     propagateMinConstraints = true,
