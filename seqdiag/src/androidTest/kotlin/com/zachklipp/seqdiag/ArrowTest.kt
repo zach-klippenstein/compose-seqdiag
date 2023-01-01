@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
-import app.cash.paparazzi.detectEnvironment
 import com.android.ide.common.rendering.api.SessionParams
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -55,7 +54,7 @@ internal class ArrowTest {
 
     @Test
     fun arrowToSelf(
-        @TestParameter head: ArrowHead,
+        @TestParameter head: ArrowHeadType,
         @TestParameter height: SelfArrowTestHeight,
     ) {
         paparazzi.snapshot {
@@ -74,8 +73,8 @@ internal class ArrowTest {
 
     @Test
     fun horizontalArrow(
-        @TestParameter startHead: ArrowHead,
-        @TestParameter endHead: ArrowHead,
+        @TestParameter startHead: ArrowHeadType,
+        @TestParameter endHead: ArrowHeadType,
     ) {
         paparazzi.snapshot {
             HorizontalArrow(

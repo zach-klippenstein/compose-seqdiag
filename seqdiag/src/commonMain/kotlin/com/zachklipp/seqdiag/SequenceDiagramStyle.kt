@@ -10,12 +10,28 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 internal val LocalTextStyle = compositionLocalOf { RootTextStyle }
+
+/**
+ * The default [TextStyle] used for [LocalTextStyle]. May be overridden using [OverrideTextStyle].
+ */
+@OptIn(ExperimentalTextApi::class)
+internal val RootTextStyle
+    get() = TextStyle(
+        textAlign = TextAlign.Center,
+        platformStyle = RootPlatformTextStyle
+    )
+
+@OptIn(ExperimentalTextApi::class)
+internal expect val RootPlatformTextStyle: PlatformTextStyle
 
 interface SequenceDiagramStyle {
     /**
@@ -43,11 +59,34 @@ interface SequenceDiagramStyle {
      * The padding used internally [Note] composables.
      */
     val notePadding: PaddingValues
+
+    /**
+     * The [Shape] used for all [Note] composables.
+     */
     val noteShape: Shape
+
+    /**
+     * The [Brush] used to draw the background of all [Note] composables.
+     */
     val noteBackgroundBrush: Brush
 
+    /**
+     * The default [Brush] used to draw lines. To override for an individual line, call
+     * [LineBuilder.brush].
+     */
     val lineBrush: Brush
+
+    /**
+     * The default stroke width for lines. To override for an individual line, call
+     * [LineBuilder.stroke].
+     */
     val lineWeight: Dp
+
+    /**
+     * The default style of the arrow head draw at the end of lines. See [ArrowHeadType] for
+     * possible values. To override for an individual line, call [LineBuilder.arrowHeadType].
+     */
+    val arrowHeadType: ArrowHeadType
 
     /**
      * If true, labels will be measured with constraints that attempt to make their dimensions
@@ -64,6 +103,9 @@ internal fun SequenceDiagramStyle.getLineStroke(density: Density): Stroke = with
     Stroke(lineWeight.toPx())
 }
 
+/**
+ * An immutable [SequenceDiagramStyle].
+ */
 data class BasicSequenceDiagramStyle(
     override val participantSpacing: Dp = DefaultParticipantSpacing,
     override val verticalSpacing: Dp = DefaultVerticalSpacing,
@@ -74,6 +116,7 @@ data class BasicSequenceDiagramStyle(
     override val noteBackgroundBrush: Brush = DefaultNoteBackgroundBrush,
     override val lineBrush: Brush = DefaultLineBrush,
     override val lineWeight: Dp = DefaultLineWeight,
+    override val arrowHeadType: ArrowHeadType = ArrowHeadType.Filled,
     override val balanceLabelDimensions: Boolean = true
 ) : SequenceDiagramStyle
 
@@ -87,8 +130,9 @@ private val DefaultNoteBackgroundBrush = SolidColor(Color.White)
 private val DefaultLineBrush = SolidColor(Color.Black)
 private val DefaultLineWeight = 2.dp
 
-internal expect val RootTextStyle:TextStyle
-
+/**
+ * Modifies the [LocalTextStyle] for [content] by calling the [style] transformation function.
+ */
 @Composable
 internal fun OverrideTextStyle(style: (TextStyle) -> TextStyle, content: @Composable () -> Unit) {
     val oldStyle = LocalTextStyle.current

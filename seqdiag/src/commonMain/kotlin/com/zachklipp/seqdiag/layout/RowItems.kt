@@ -40,6 +40,6 @@ internal abstract class SingleParticipantRowItem : SequenceRowItem() {
 }
 
 internal abstract class SpanningRowItem : SequenceRowItem() {
-    abstract val participants: List<Participant>
+    abstract val participants: Collection<Participant>
     abstract fun Density.measure(minWidth: Int, maxWidth: Int)
 }

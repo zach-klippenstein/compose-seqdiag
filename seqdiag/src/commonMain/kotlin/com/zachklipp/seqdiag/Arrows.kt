@@ -32,13 +32,17 @@ import androidx.compose.ui.unit.dp
 
 private val ArrowHeadSize = DpSize(8.dp, 10.dp)
 
+enum class ArrowHeadType {
+    Filled, Outlined
+}
+
 @Composable
 internal fun HorizontalArrow(
     brush: Brush,
     stroke: Stroke,
     modifier: Modifier = Modifier,
-    startHead: ArrowHead? = null,
-    endHead: ArrowHead? = null
+    startHead: ArrowHeadType? = null,
+    endHead: ArrowHeadType? = null
 ) {
     Box(
         modifier
@@ -80,8 +84,8 @@ internal fun HorizontalArrow(
                                     it,
                                     brush = brush,
                                     style = when (startHead) {
-                                        ArrowHead.Filled -> Fill
-                                        ArrowHead.Outline -> stroke
+                                        ArrowHeadType.Filled -> Fill
+                                        ArrowHeadType.Outlined -> stroke
                                     }
                                 )
                             }
@@ -91,8 +95,8 @@ internal fun HorizontalArrow(
                                         it,
                                         brush = brush,
                                         style = when (endHead) {
-                                            ArrowHead.Filled -> Fill
-                                            ArrowHead.Outline -> stroke
+                                            ArrowHeadType.Filled -> Fill
+                                            ArrowHeadType.Outlined -> stroke
                                         }
                                     )
                                 }
@@ -108,7 +112,7 @@ internal fun HorizontalArrow(
 internal fun ArrowToSelf(
     brush: Brush,
     stroke: Stroke,
-    head: ArrowHead,
+    head: ArrowHeadType,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -139,8 +143,8 @@ internal fun ArrowToSelf(
                                 headOutline,
                                 brush = brush,
                                 style = when (head) {
-                                    ArrowHead.Filled -> Fill
-                                    ArrowHead.Outline -> stroke
+                                    ArrowHeadType.Filled -> Fill
+                                    ArrowHeadType.Outlined -> stroke
                                 }
                             )
                         }
@@ -148,10 +152,6 @@ internal fun ArrowToSelf(
                 }
             }
     )
-}
-
-internal enum class ArrowHead {
-    Filled, Outline
 }
 
 private val ArrowShape = object : Shape {
@@ -181,7 +181,11 @@ private fun LayoutDirection.reversed() = when (this) {
 private fun ArrowPreview() {
     Column(verticalArrangement = spacedBy(2.dp), modifier = Modifier.padding(8.dp)) {
         HorizontalArrow(brush = SolidColor(Color.Black), stroke = Stroke())
-        ArrowToSelf(brush = SolidColor(Color.Black), stroke = Stroke(), head = ArrowHead.Outline)
+        ArrowToSelf(
+            brush = SolidColor(Color.Black),
+            stroke = Stroke(),
+            head = ArrowHeadType.Outlined
+        )
         HorizontalArrow(
             brush = SolidColor(Color.Black),
             stroke = Stroke(),
@@ -190,14 +194,14 @@ private fun ArrowPreview() {
         ArrowToSelf(
             brush = SolidColor(Color.Black),
             stroke = Stroke(),
-            head = ArrowHead.Filled,
+            head = ArrowHeadType.Filled,
             modifier = Modifier.size(50.dp)
         )
         HorizontalArrow(
             brush = SolidColor(Color.Black), stroke = Stroke(),
             modifier = Modifier.size(50.dp),
-            startHead = ArrowHead.Outline,
-            endHead = ArrowHead.Filled
+            startHead = ArrowHeadType.Outlined,
+            endHead = ArrowHeadType.Filled
         )
         HorizontalArrow(
             brush = SolidColor(Color.Black),
@@ -206,29 +210,29 @@ private fun ArrowPreview() {
                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
             ),
             modifier = Modifier.size(50.dp),
-            startHead = ArrowHead.Outline,
-            endHead = ArrowHead.Filled
+            startHead = ArrowHeadType.Outlined,
+            endHead = ArrowHeadType.Filled
         )
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             HorizontalArrow(
                 brush = SolidColor(Color.Black), stroke = Stroke(),
                 modifier = Modifier.size(50.dp),
-                startHead = ArrowHead.Outline,
-                endHead = ArrowHead.Filled
+                startHead = ArrowHeadType.Outlined,
+                endHead = ArrowHeadType.Filled
             )
         }
         ArrowToSelf(
             brush = SolidColor(Color.Black),
             stroke = Stroke(),
             modifier = Modifier.size(50.dp),
-            head = ArrowHead.Filled
+            head = ArrowHeadType.Filled
         )
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             ArrowToSelf(
                 brush = SolidColor(Color.Black),
                 stroke = Stroke(),
                 modifier = Modifier.size(50.dp),
-                head = ArrowHead.Outline
+                head = ArrowHeadType.Outlined
             )
         }
     }

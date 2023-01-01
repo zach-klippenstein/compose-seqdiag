@@ -17,7 +17,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import com.zachklipp.seqdiag.ArrowHead
+import com.zachklipp.seqdiag.ArrowHeadType
 import com.zachklipp.seqdiag.HorizontalArrow
 import com.zachklipp.seqdiag.LineBuilder
 import com.zachklipp.seqdiag.Participant
@@ -37,6 +37,7 @@ internal class Line(
     override val participants: List<Participant> = listOf(from, to)
     private var brush: Brush? by mutableStateOf(null)
     private var stroke by mutableStateOf<Stroke?>(null)
+    private var arrowHeadType by mutableStateOf(ArrowHeadType.Filled)
     private var label by mutableStateOf<(@Composable () -> Unit)?>(null)
 
     /**
@@ -55,6 +56,9 @@ internal class Line(
 
     override fun brush(brush: Brush): LineBuilder = apply { this.brush = brush }
     override fun stroke(stroke: Stroke): LineBuilder = apply { this.stroke = stroke }
+    override fun arrowHeadType(type: ArrowHeadType): LineBuilder =
+        apply { this.arrowHeadType = type }
+
     override fun label(content: @Composable () -> Unit): LineBuilder =
         apply { this.label = content }
 
@@ -73,9 +77,8 @@ internal class Line(
             HorizontalArrow(
                 brush = brush ?: style.lineBrush,
                 stroke = stroke ?: style.getLineStroke(LocalDensity.current),
-                // TODO make configurable
-                startHead = if (!forwards) ArrowHead.Filled else null,
-                endHead = if (forwards) ArrowHead.Filled else null,
+                startHead = if (!forwards) arrowHeadType else null,
+                endHead = if (forwards) arrowHeadType else null,
                 modifier = Modifier.fillMaxSize()
             )
         }

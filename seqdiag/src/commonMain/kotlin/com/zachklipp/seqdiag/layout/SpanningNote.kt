@@ -18,7 +18,7 @@ import com.zachklipp.seqdiag.SequenceDiagramStyle
  * sizes.
  */
 internal class SpanningNote(
-    override val participants: List<Participant>,
+    override val participants: Collection<Participant>,
     val label: @Composable () -> Unit,
     private val style: SequenceDiagramStyle,
 ) : SpanningRowItem() {

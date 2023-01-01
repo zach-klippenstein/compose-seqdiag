@@ -1,8 +1,5 @@
 package com.zachklipp.seqdiag
 
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.PlatformTextStyle
 
-internal actual val RootTextStyle: TextStyle = TextStyle(
-    textAlign = TextAlign.Center,
-)
+internal actual val RootPlatformTextStyle = PlatformTextStyle(null, null)

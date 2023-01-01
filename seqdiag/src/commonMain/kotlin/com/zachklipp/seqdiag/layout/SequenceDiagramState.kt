@@ -135,7 +135,7 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
 
     override fun Participant.lineTo(other: Participant): LineBuilder {
         return if (this == other) {
-            LineToSelf(this as ParticipantState, diagramStyle)
+            LineToSelf(this as ParticipantState)
         } else {
             Line(
                 from = this as ParticipantState,
@@ -146,11 +146,11 @@ internal class SequenceDiagramState : SequenceDiagramScope, MeasurePolicy {
         }
     }
 
-    override fun noteOver(participants: List<Participant>, label: @Composable () -> Unit) {
+    override fun noteOver(participants: Collection<Participant>, label: @Composable () -> Unit) {
         require(participants.isNotEmpty()) { "Participants list must not be empty" }
         rowItems += if (participants.size == 1) {
             SingleParticipantNote(
-                participants[0] as ParticipantState,
+                participants.single() as ParticipantState,
                 participantAlignment = Over,
                 label = label,
                 style = diagramStyle,

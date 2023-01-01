@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.zachklipp.seqdiag.ArrowHeadType
 import com.zachklipp.seqdiag.BasicSequenceDiagramStyle
 import com.zachklipp.seqdiag.Label
 import com.zachklipp.seqdiag.Note
@@ -27,13 +28,16 @@ fun BasicSequenceDiagram() {
         val bob = createParticipant { Note("Bob") }
         val carlos = createParticipant { Note("Carlos") }
 
+        // Lines can be specified between any two participants, with their
         alice.lineTo(bob)
             .label { Label("Hello!") }
         bob.lineTo(carlos)
             .label { Label("Alice says hi") }
 
-        // Lines don't need to have labels.
+        // Lines don't need to have labels, and they can be styled.
         carlos.lineTo(bob)
+            .color(Color.Blue)
+            .arrowHeadType(ArrowHeadType.Outlined)
 
         // Lines can span multiple participants.
         carlos.lineTo(alice)
@@ -71,6 +75,7 @@ fun Styling() {
             ),
             lineBrush = SolidColor(Color.Blue),
             lineWeight = 4.dp,
+            arrowHeadType = ArrowHeadType.Outlined,
         )
     ) {
         val alice = createParticipant { Note("Alice") }
