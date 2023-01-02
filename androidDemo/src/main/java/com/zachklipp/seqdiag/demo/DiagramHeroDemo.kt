@@ -36,7 +36,7 @@ fun DiagramHeroDemo() {
         val microservice2 = createParticipant { Note("Microservice 2") }
         val db = createParticipant { Note("DB") }
 
-        noteToEndOf(browser) { Label("GET") }
+        noteOver(browser) { Label("GET") }
         browser.lineTo(frontend)
 
         noteOver(frontend, db) { Note("1st attempt") }

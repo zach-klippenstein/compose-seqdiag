@@ -65,6 +65,7 @@ internal class Line(
                     modifier = Modifier
                         .padding(horizontal = style.labelPadding)
                         .then(if (balanceLabel) Modifier.balancedAspectRatio() else Modifier)
+                        .clearBackground()
                 ) {
                     it()
                 }

@@ -46,6 +46,15 @@ internal fun Modifier.scaleToFitMaxConstraints(): Modifier {
                     transformOrigin = TransformOrigin(0f, 0f)
                     scaleX = scaleFactor
                     scaleY = scaleFactor
+
+                    // Allow transparent labels to erase participant lines without erasing whatever
+                    // the diagram is drawn on top of.
+                    // Note that Paparazzi doesn't seem to support compositing layers when the alpha
+                    // is <1, so the snapshots will have actual full transparency underneath labels.
+                    // It works in Android Studio previews though, so Paparazzi probably just needs
+                    // to update its version of layoutlib.
+                    // TODO Use CompositingStrategy when available.
+                    this.alpha = 0.99f
                 }
             }
         }
