@@ -98,7 +98,7 @@ fun DiagramDevDemo(balanceLabelDimensions: Boolean = true) {
             )
         noteToStartOf(actor1) { Note("Note to start") }
         actor3.lineTo(actor2)
-        noteOver(actor2) { Note("Note over") }
+        noteOver(actor2) { Label("Label over") }
         noteOver(actor2) {
             BasicTextField(
                 value = noteValue,

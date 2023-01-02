@@ -54,6 +54,7 @@ internal class SingleParticipantNote(
                 .then(
                     if (style.balanceLabelDimensions) Modifier.balancedAspectRatio() else Modifier
                 )
+                .clearBackground()
         ) {
             label()
         }
