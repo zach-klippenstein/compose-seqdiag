@@ -1,33 +1,12 @@
 package com.zachklipp.seqdiag
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import com.android.ide.common.rendering.api.SessionParams
 import com.google.testing.junit.testparameterinjector.TestParameter
-import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
 @Suppress("JUnitMalformedDeclaration")
-@RunWith(TestParameterInjector::class)
-class SequenceDiagramTest {
-
-    @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_5,
-        showSystemUi = false,
-        renderingMode = SessionParams.RenderingMode.SHRINK,
-    )
-
-    @TestParameter
-    lateinit var layoutDirection: LayoutDirection
+class SequenceDiagramTest : BaseSnapshotTest() {
 
     @Test
     fun participantLabels(
@@ -193,14 +172,6 @@ class SequenceDiagramTest {
 
                 start.lineTo(end)
                 start.lineTo(end).label { Label("label") }
-            }
-        }
-    }
-
-    private fun snapshot(content: @Composable () -> Unit) {
-        paparazzi.snapshot {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                content()
             }
         }
     }

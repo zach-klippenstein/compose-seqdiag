@@ -8,25 +8,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import app.cash.paparazzi.DeviceConfig
-import app.cash.paparazzi.Paparazzi
-import com.android.ide.common.rendering.api.SessionParams
 import com.google.testing.junit.testparameterinjector.TestParameter
-import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
 @Suppress("JUnitMalformedDeclaration")
-@RunWith(TestParameterInjector::class)
-internal class ArrowTest {
-
-    @get:Rule
-    val paparazzi = Paparazzi(
-        deviceConfig = DeviceConfig.PIXEL_5,
-        showSystemUi = false,
-        renderingMode = SessionParams.RenderingMode.SHRINK,
-    )
+internal class ArrowTest : BaseSnapshotTest() {
 
     @TestParameter
     lateinit var stroke: ArrowStrokeTestStyle
@@ -57,7 +43,7 @@ internal class ArrowTest {
         @TestParameter head: ArrowHeadType,
         @TestParameter height: SelfArrowTestHeight,
     ) {
-        paparazzi.snapshot {
+        snapshot {
             ArrowToSelf(
                 brush = SolidColor(Color.Red),
                 stroke = stroke.stroke,
@@ -76,7 +62,7 @@ internal class ArrowTest {
         @TestParameter startHead: ArrowHeadType,
         @TestParameter endHead: ArrowHeadType,
     ) {
-        paparazzi.snapshot {
+        snapshot {
             HorizontalArrow(
                 brush = SolidColor(Color.Red),
                 stroke = stroke.stroke,
