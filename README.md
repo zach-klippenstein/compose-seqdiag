@@ -7,7 +7,7 @@ A library for rendering [sequence diagrams](https://en.wikipedia.org/wiki/Sequen
 Compose UI. The library supports Kotlin Multiplatform and currently supports Android and JVM
 targets. Both left-to-right and right-to-left layout directions are supported.
 
-More information is available at the [project website](http://www.zachklipp.com/compose-seqdiag/index.html).
+More information is available at the [project website](https://zach-klippenstein.github.io/compose-seqdiag/).
 
 Sequence diagrams made with this library look like this:
 
